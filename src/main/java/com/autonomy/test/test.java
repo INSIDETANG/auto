@@ -14,7 +14,7 @@ public class test {
 
 	@RequestMapping(value={"/hello"})
 	public String hello() {
-		log.info("testdsadas");
+		log.info("test logger!");
 		System.out.println("hello word!");
 		return "index";
 	}
