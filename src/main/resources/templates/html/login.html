@@ -2,19 +2,18 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="utf-8">
-    <title>登入 - layuiAdmin</title>
+    <title th:text="#{login}"></title>
     <meta name="renderer" content="webkit">
     <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
     <meta name="viewport"
           content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=0">
-    <link rel="stylesheet" href="../../static/layui/css/layui.css" media="all">
     <link rel="stylesheet" href="../../static/css/admin.css" media="all">
     <link rel="stylesheet" href="../../static/css/login.css" media="all">
+    <script type="text/javascript" th:src="@{../../static/js/public/public.js}"></script>
 </head>
 <body>
 
 <div class="layadmin-user-login layadmin-user-display-show" id="LAY-user-login" style="display: none;">
-
     <div class="layadmin-user-login-main">
         <div class="layadmin-user-login-box layadmin-user-login-header">
             <h2 th:text="#{logo.title}"></h2>
@@ -24,7 +23,7 @@
             <div class="layui-form-item">
                 <label class="layadmin-user-login-icon layui-icon layui-icon-username"
                        for="LAY-user-login-username"></label>
-                <input type="text" name="username" id="LAY-user-login-username" lay-verify="required"
+                <input type="text" name="account" id="LAY-user-login-username" lay-verify="required"
                        th:placeholder="#{login.account}" class="layui-input">
             </div>
             <div class="layui-form-item">
@@ -43,18 +42,20 @@
                     </div>
                     <div class="layui-col-xs5">
                         <div style="margin-left: 10px;">
-                            <img src="https://www.oschina.net/action/user/captcha" class="layadmin-user-login-codeimg"
-                                 id="LAY-user-get-vercode">
+                            <!-- <img src="https://www.oschina.net/action/user/captcha" class="layadmin-user-login-codeimg"
+                                  id="LAY-user-get-vercode">-->
+                            <canvas id="canvas" width="100%" height="40"></canvas>
                         </div>
                     </div>
                 </div>
             </div>
             <div class="layui-form-item" style="margin-left:0px">
-                <input type="radio" name="language" value="en_US" th:title="#{logo.language_zh}" style="padding-left: 38px">
-                <input type="radio" name="language" value="zh_CN" th:title="#{logo.language_en}" checked>
+                <input type="radio" name="language" id="zh_CN" value="zh_CN" th:title="#{logo.language_zh}" checked
+                       style="padding-left: 38px">
+                <input type="radio" name="language" id="en_US" value="en_US" th:title="#{logo.language_en}">
             </div>
             <div class="layui-form-item" style="margin-bottom: 20px;">
-                <input type="checkbox" name="remember" lay-skin="primary" th:title="#{login.rememberPassword}">
+                <input type="checkbox" name="rememberMe" lay-skin="primary" value=true th:title="#{login.rememberPassword}">
                 <a href="forget.html" class="layadmin-user-jump-change layadmin-link" style="margin-top: 7px;"
                    th:text="#{login.forgetPassword}"></a>
             </div>
@@ -72,59 +73,134 @@
         </div>
     </div>
 </div>
-
-<script src="../../static/layui/layui.js"></script>
-<script>
-    layui./*config({
-    base: '../../layuiadmin/' //静态资源所在路径
-  }).extend({
-   // index: 'lib/index' //主入口模块
-  }).*/use("form", function () {
-        var $ = layui.$
-            , setter = layui.setter
-            , admin = layui.admin
-            , form = layui.form
-            , router = layui.router()
-            , search = router.search;
-
+<script th:inline="javascript">
+    layui.use("form", function () {
+        var form = layui.form;
+        form.on('radio', function (data) {
+            location.href = "/?l=" + data.value;
+        });
+        $.getUrlParam = function (name) {
+            var reg = new RegExp("(^|&)" + name + "=([^&]*)(&|$)");
+            var r = window.location.search.substr(1).match(reg);
+            if (r != null) return unescape(r[2]);
+            return null;
+        }
+        var l = $.getUrlParam("l");
+        console.info(l);
+        if (l == "en_US") {
+            $("#en_US").attr("checked", true);
+        } else {
+            $("#zh_CN").attr("checked", true);
+        }
         form.render();
 
-        //提交
-        form.on('submit(LAY-user-login-submit)', function (obj) {
-
-            //请求登入接口
-            admin.req({
-                url: layui.setter.base + 'json/user/login.js' //实际使用请改成服务端真实接口
-                , data: obj.field
-                , done: function (res) {
-
-                    //请求成功后，写入 access_token
-                    layui.data(setter.tableName, {
-                        key: setter.request.tokenName
-                        , value: res.data.access_token
-                    });
-
-                    //登入成功的提示与跳转
-                    layer.msg('登入成功', {
-                        offset: '15px'
-                        , icon: 1
-                        , time: 1000
-                    }, function () {
-                        location.href = '../'; //后台主页
-                    });
+        form.on('submit(LAY-user-login-submit)', function (data) {
+            if($("#LAY-user-login-vercode").val()!=show_num.join("")){
+                layer.msg([[#{login.verificationFiailed}]]);
+                return false;
+            }
+            if(data.field.rememberMe=="true"){
+                data.field.rememberMe=true;
+            }else{
+                data.field.rememberMe=false;
+            }
+            console.info(data.field);
+            $.ajax({
+                url: "/auto/user/login",
+                async: false,
+                type: "POST",
+                dataType: "json",
+                data: JSON.stringify(data.field),
+                contentType: 'application/json;charset=utf-8',
+                success: function (data) {
+                    layer.msg(data.message);
+                    if(data.code==200){
+                        location.href="/index";
+                    }
                 }
             });
-
-        });
-
-
-        //实际使用时记得删除该代码
-        layer.msg('为了方便演示，用户名密码可随意输入', {
-            offset: '15px'
-            , icon: 1
-        });
-
+        })
     });
+</script>
+<script>
+    var show_num = [];
+    $(function () {
+        draw(show_num);
+
+        $("#canvas").on('click', function () {
+            draw(show_num);
+        })
+        $(".btn").on('click', function () {
+            var val = $(".input-val").val().toLowerCase();
+            var num = show_num.join("");
+            if (val == '') {
+                alert('请输入验证码！');
+            } else if (val == num) {
+                alert('提交成功！');
+                $(".input-val").val('');
+                draw(show_num);
+
+            } else {
+                alert('验证码错误！请重新输入！');
+                $(".input-val").val('');
+                draw(show_num);
+            }
+        })
+    })
+
+    function draw(show_num) {
+        var canvas_width = $('#canvas').width();
+        var canvas_height = $('#canvas').height();
+        var canvas = document.getElementById("canvas");//获取到canvas的对象，演员
+        var context = canvas.getContext("2d");//获取到canvas画图的环境，演员表演的舞台
+        canvas.width = canvas_width;
+        canvas.height = canvas_height;
+        var sCode = "A,B,C,E,F,G,H,J,K,L,M,N,P,Q,R,S,T,W,X,Y,Z,1,2,3,4,5,6,7,8,9,0";
+        var aCode = sCode.split(",");
+        var aLength = aCode.length;//获取到数组的长度
+
+        for (var i = 0; i <= 3; i++) {
+            var j = Math.floor(Math.random() * aLength);//获取到随机的索引值
+            var deg = Math.random() * 30 * Math.PI / 180;//产生0~30之间的随机弧度
+            var txt = aCode[j];//得到随机的一个内容
+            show_num[i] = txt.toLowerCase();
+            var x = 10 + i * 20;//文字在canvas上的x坐标
+            var y = 20 + Math.random() * 8;//文字在canvas上的y坐标
+            context.font = "bold 23px 微软雅黑";
+
+            context.translate(x, y);
+            context.rotate(deg);
+
+            context.fillStyle = randomColor();
+            context.fillText(txt, 0, 0);
+
+            context.rotate(-deg);
+            context.translate(-x, -y);
+        }
+        for (var i = 0; i <= 5; i++) { //验证码上显示线条
+            context.strokeStyle = randomColor();
+            context.beginPath();
+            context.moveTo(Math.random() * canvas_width, Math.random() * canvas_height);
+            context.lineTo(Math.random() * canvas_width, Math.random() * canvas_height);
+            context.stroke();
+        }
+        for (var i = 0; i <= 30; i++) { //验证码上显示小点
+            context.strokeStyle = randomColor();
+            context.beginPath();
+            var x = Math.random() * canvas_width;
+            var y = Math.random() * canvas_height;
+            context.moveTo(x, y);
+            context.lineTo(x + 1, y + 1);
+            context.stroke();
+        }
+    }
+
+    function randomColor() {//得到随机的颜色值
+        var r = Math.floor(Math.random() * 256);
+        var g = Math.floor(Math.random() * 256);
+        var b = Math.floor(Math.random() * 256);
+        return "rgb(" + r + "," + g + "," + b + ")";
+    }
 </script>
 </body>
 </html>

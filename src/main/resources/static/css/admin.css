@@ -234,7 +234,7 @@ html {
 }
 
 .layui-layout-admin .layui-layout-left .layui-nav-item {
-    margin: 0 20px
+    margin: 0 0px
 }
 
 .layui-layout-admin .layui-input-search {
@@ -246,7 +246,7 @@ html {
 }
 
 .layui-layout-admin .layui-layout-left a, .layui-layout-admin .layui-layout-right {
-    padding: 0
+    padding: auto
 }
 
 .layui-header .layui-nav-item .layui-icon {
