@@ -333,7 +333,6 @@ html {
         -webkit-transform: translate3d(-220px, 0, 0);
         width: 220px
     }
-
     .layadmin-pagetabs, .layui-layout-admin .layui-body, .layui-layout-admin .layui-footer, .layui-layout-admin .layui-layout-left {
         left: 0
     }
@@ -341,7 +340,8 @@ html {
 
 .layadmin-side-shrink .layui-layout-admin .layui-logo {
     width: 60px;
-    background-image: url(res/logo.png)
+    background-image: url(../img/favicon.ico);
+    background-size: 20px 20px;
 }
 
 .layadmin-side-shrink .layui-layout-admin .layui-logo span {
