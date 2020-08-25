@@ -1,6 +1,7 @@
 package com.autonomy.controller.users;
 
 import com.autonomy.common.HttpResult;
+import com.autonomy.common.ResultCode;
 import com.autonomy.controller.BaseController;
 import com.autonomy.pojo.Sys_Users;
 import com.autonomy.service.impl.Sys_UsersServiceImpl;
@@ -10,7 +11,9 @@ import org.apache.shiro.session.Session;
 import org.apache.shiro.subject.Subject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
 
 @Controller
 @RequestMapping("/auto/user/")
@@ -31,15 +34,15 @@ public class LoginCtroller extends BaseController {
             token.setRememberMe(user.getRememberMe());
             subject.login(token);
         } catch (UnknownAccountException uae) {
-            return error(-1,"msg.unknownAccountException");
+            return error(-1, ResultCode.UNKNOWNACCOUNTEXCEPTION.getResultMsg());
         } catch (IncorrectCredentialsException ice) {
-            return error(-2,"msg.incorrectCredentialsException");
+            return error(-2,ResultCode.INCORRECTCREDENTIALSEXCEPTION.getResultMsg());
         } catch (LockedAccountException lae) {
-            return error(-3,"msg.lockedAccountException");
+            return error(-3,ResultCode.LOCKEDACCOUNTEXCEPTION.getResultMsg());
         } catch (ExcessiveAttemptsException eae) {
-            return error(-4,"msg.excessiveAttemptsException");
+            return error(-4,ResultCode.EXCESSIVEATTEMPTSEXCEPTION.getResultMsg());
         } catch (AuthenticationException ae) {
-            return error(-5,"msg.authenticationException");
+            return error(-5,ResultCode.AUTHENTICATIONEXCEPTION.getResultMsg());
         }
         if (subject.isAuthenticated()) {
             //把当前用户放入session

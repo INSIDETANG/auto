@@ -1,7 +1,7 @@
 package com.autonomy.common;
 
 public enum ResultCode implements BaseErrorInfoInterface{
-    // 数据操作错误定义
+    // 数据操作定义
     SUCCESS(200,"msg.executionSuccessful"),
     ERROR(500,"msg.serverInternalError"),
     LOGIN_SUCCESS(200,"msg.loginSuccess"),

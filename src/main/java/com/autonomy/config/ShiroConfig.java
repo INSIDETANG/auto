@@ -65,17 +65,12 @@ public class ShiroConfig {
         filterMap.put("/img/**", "anon");
         filterMap.put("/css/**", "anon");
         filterMap.put("/js/**", "anon");
+        filterMap.put("/html/**", "user");
         filterMap.put("/auto/user/login", "anon");
         filterMap.put("/index", "user");
         filterMap.put("/logout", "logout");
         filterMap.put("/**", "user");
 
-        /*FormAuthenticationFilter formAuthenticationFilter = new FormAuthenticationFilter();
-		formAuthenticationFilter.setUsernameParam("login_name");
-		formAuthenticationFilter.setPasswordParam("login_password");*/
-        //filters.put("authc", formAuthenticationFilter);
-        /* filters.put("authc", new MyFormAuthenticationFilter()); */
-        //bean.setFilters(filters);
         // 设置登录成功跳转Url
         bean.setSuccessUrl("/index");
         // 设置登录跳转Url
